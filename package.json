@@ -1,0 +1,25 @@
+{
+  "name": "haboob-dashboard",
+  "version": "1.0.0",
+  "description": "Haboob Dust Observation Dashboard - Full Stack Application",
+  "main": "dust-dashboard/backend/server.js",
+  "scripts": {
+    "install-backend": "cd dust-dashboard/backend && npm install",
+    "start": "cd dust-dashboard/backend && npm start",
+    "dev": "cd dust-dashboard/backend && npm run dev",
+    "build": "npm run install-backend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dust",
+    "dashboard",
+    "weather",
+    "metar",
+    "haboob"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
