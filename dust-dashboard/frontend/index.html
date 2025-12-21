@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haboob | Dust Observation Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div id="notification-area"></div>
+
+    <div class="app-container">
+        <!-- Sidebar / Header -->
+        <header class="main-header">
+            <div class="logo-area">
+                <h1>Haboob | <span class="highlight">Dust Observation Dashboard</span></h1>
+                <p>Sandstorm & Dust Monitoring System</p>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li class="active"><a href="index.html">Home</a></li>
+                    <li><a href="#map">Map</a></li>
+                    <li><a href="reports.html">Reports</a></li>
+                </ul>
+            </nav>
+            <div class="time-controls">
+                <button class="btn small outline live-btn" id="live-btn">
+                    <span class="pulse-dot"></span> LIVE
+                </button>
+                <button class="btn small outline active" data-hours="24">24h</button>
+                <button class="btn small outline" data-hours="48">48h</button>
+                <button class="btn small outline" data-hours="168">7 Days</button>
+                <button class="btn small outline" id="custom-range-btn">Custom</button>
+            </div>
+            <div class="status-indicator" id="connection-status">
+                <span class="dot"></span> Connected
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="content-area">
+
+            <!-- Summary Cards -->
+            <section class="summary-section">
+                <div class="card summary-card" id="card-total">
+                    <h3>Total Observations</h3>
+                    <div class="value" id="total-events-val">--</div>
+                    <div class="label" id="period-label">Last 24 Hours</div>
+                </div>
+                <div class="card summary-card" id="card-severe">
+                    <h3>Severe Storms</h3>
+                    <div class="value" id="severe-events-val">--</div>
+                    <div class="label">DS / SS</div>
+                </div>
+                <div class="card summary-card" id="card-active">
+                    <h3>Active Stations</h3>
+                    <div class="value" id="active-stations-val">--</div>
+                    <div class="label">Contributing Stations</div>
+                </div>
+            </section>
+
+            <!-- Map Section -->
+            <section class="map-section card">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>Interactive Map</h2>
+                        <button id="info-btn" class="btn small outline" title="Classification Criteria">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            Classification Criteria
+                        </button>
+                    </div>
+                    <div class="controls">
+                        <button id="refresh-map-btn" class="btn small">Refresh</button>
+                    </div>
+                </div>
+                <div id="map" style="height: 500px;"></div>
+                <div class="map-legend">
+                    <span><span class="dot low"></span> Light (DU, SA)</span>
+                    <span><span class="dot med"></span> Moderate (BLDU)</span>
+                    <span><span class="dot high"></span> Severe (DS, SS)</span>
+                </div>
+            </section>
+
+            <!-- WMO Map Section -->
+            <section class="map-section card" id="wmo-map-section">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>Time Series Simulation (WMO)</h2>
+                    </div>
+                </div>
+                <div id="wmo-map" style="height: 500px;"></div>
+                <div id="wmo-controls" style="margin-top: 20px;"></div>
+            </section>
+
+            <!-- Detailed Grid -->
+            <section class="details-grid">
+
+                <!-- Table Section -->
+                <div class="card table-container">
+                    <div class="section-header">
+                        <h2>Observation Log (METAR)</h2>
+                        <button id="export-btn" class="btn outline">Export CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="dust-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time (UTC)</th>
+                                    <th>Station</th>
+                                    <th>Phenomenon</th>
+                                    <th>Visibility (mi)</th>
+                                    <th>Wind (kt)</th>
+                                    <th>Temp (C°)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr>
+                                    <td colspan="7" class="loading-text">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Wind Rose Section -->
+                <div class="card chart-container">
+                    <div class="section-header">
+                        <div>
+                            <h2>Wind Rose</h2>
+                            <p id="windrose-subtitle" class="section-subtitle">All Stations | Last 24 Hours</p>
+                        </div>
+                        <select id="station-select">
+                            <option value="">All Stations</option>
+                        </select>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="windRoseChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2026 Haboob | Dust Observation Dashboard. All rights reserved.</p>
+            <p class="credits">By Eng. Budour Alshehri</p>
+        </footer>
+    </div>
+
+    <!-- Classification Modal -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Dust Classification Criteria</h2>
+            <p>Dust intensity is classified based on the METAR code and visibility level:</p>
+            <div class="criteria-list">
+                <div class="criteria-item high">
+                    <span class="dot high"></span>
+                    <div>
+                        <strong>Severe / Dangerous</strong>
+                        <p>Dust storms (DS) or sandstorms (SS), or when visibility is less than 1 mile.</p>
+                    </div>
+                </div>
+                <div class="criteria-item med">
+                    <span class="dot med"></span>
+                    <div>
+                        <strong>Moderate</strong>
+                        <p>Blowing dust or sand (BLDU, BLSA), or visibility between 1 - 3 miles.</p>
+                    </div>
+                </div>
+                <div class="criteria-item low">
+                    <span class="dot low"></span>
+                    <div>
+                        <strong>Light</strong>
+                        <p>Suspended dust (DU) or sand (SA), or visibility more than 3 miles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Picker Modal -->
+    <div id="date-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close-modal" id="close-date-modal">&times;</span>
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    style="vertical-align: middle; margin-right: 5px;">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Select Data Period
+            </h2>
+            <div class="date-inputs">
+                <div class="input-group">
+                    <label>From Date:</label>
+                    <input type="date" id="start-date">
+                </div>
+                <div class="input-group">
+                    <label>To Date:</label>
+                    <input type="date" id="end-date">
+                </div>
+                <button id="apply-date-btn" class="btn full">Show Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- App Scripts -->
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
