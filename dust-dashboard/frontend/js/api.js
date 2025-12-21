@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3000/api/dust';
+// Use relative URL to work in both development and production
+const API_BASE = '/api/dust';
 
 export const fetchAllData = async (hours = 24, customRange = null) => {
     try {
