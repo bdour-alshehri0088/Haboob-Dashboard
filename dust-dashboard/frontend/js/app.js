@@ -66,15 +66,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentHours = hours;
             stopLiveMode(); // Stop live refresh if enabled
 
+            // Helper to format date as YYYY-MM-DD using local timezone
+            const formatLocalDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const today = new Date();
+
             if (hours === 24) {
-                // Special case: 24h means "Yesterday" (00:00 - 23:59)
-                const yesterday = new Date();
+                // 24h = Yesterday (00:00 - 23:59)
+                const yesterday = new Date(today);
                 yesterday.setDate(yesterday.getDate() - 1);
-                const yStr = yesterday.toISOString().split('T')[0];
-                customRange = { start: yStr, end: yStr };
-                console.log("Loading Yesterday Data:", yStr);
+                customRange = { start: formatLocalDate(yesterday), end: formatLocalDate(yesterday) };
+                console.log("Loading Yesterday Data:", customRange);
+            } else if (hours === 48) {
+                // 48h = Last 2 days (day before yesterday + yesterday)
+                const twoDaysAgo = new Date(today);
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                customRange = {
+                    start: formatLocalDate(twoDaysAgo),
+                    end: formatLocalDate(yesterday)
+                };
+                console.log("Loading 2 Days Data:", customRange);
+            } else if (hours === 168) {
+                // 7 days = Last 7 complete days (not including today)
+                const sevenDaysAgo = new Date(today);
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                customRange = {
+                    start: formatLocalDate(sevenDaysAgo),
+                    end: formatLocalDate(yesterday)
+                };
+                console.log("Loading 7 Days Data:", customRange);
             } else {
-                customRange = null; // Reset custom for 48h, 7 days (rolling)
+                customRange = null;
             }
 
             loadData();
@@ -172,11 +203,25 @@ async function loadData() {
 
 function updatePeriodLabel() {
     const label = document.getElementById('period-label');
+
+    // Get today's date in local timezone
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
     if (customRange) {
-        label.textContent = `Period: ${customRange.start} to ${customRange.end}`;
+        // Check if it's today (Live mode)
+        if (customRange.start === today && customRange.end === today) {
+            label.textContent = "Today (Live)";
+        } else if (customRange.start === customRange.end) {
+            // Single day
+            label.textContent = `Date: ${customRange.start}`;
+        } else {
+            // Date range
+            label.textContent = `Period: ${customRange.start} to ${customRange.end}`;
+        }
     } else {
-        if (currentHours === 24) label.textContent = "Last 24 Hours";
-        else if (currentHours === 48) label.textContent = "Last 48 Hours";
+        if (currentHours === 24) label.textContent = "Yesterday";
+        else if (currentHours === 48) label.textContent = "Last 2 Days";
         else if (currentHours === 168) label.textContent = "Last 7 Days";
         else label.textContent = `Last ${currentHours} Hours`;
     }
@@ -312,6 +357,21 @@ let refreshTimer = null;
 
 function enableLiveMode() {
     console.log("Live Mode Enabled");
+
+    // Helper to format date as YYYY-MM-DD using local timezone
+    const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    // Live mode = Today from 00:00 to now
+    const today = new Date();
+    const todayStr = formatLocalDate(today);
+    customRange = { start: todayStr, end: todayStr };
+    console.log("Loading Today's Data:", todayStr);
+
     loadData();
 
     scheduleAutoRefresh();
