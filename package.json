@@ -4,10 +4,9 @@
   "description": "Haboob Dust Observation Dashboard - Full Stack Application",
   "main": "dust-dashboard/backend/server.js",
   "scripts": {
-    "install-backend": "cd dust-dashboard/backend && npm install",
+    "postinstall": "cd dust-dashboard/backend && npm install",
     "start": "cd dust-dashboard/backend && npm start",
     "dev": "cd dust-dashboard/backend && npm run dev",
-    "build": "npm run install-backend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
