@@ -3,7 +3,8 @@
  * Features: Executive Summary, Map, Wind Roses, PDF Export
  */
 
-const API_BASE = 'http://localhost:3000/api/dust';
+// Use relative URL to work in both development and production
+const API_BASE = '/api/dust';
 
 // All countries to track
 const ALL_COUNTRIES = [
