@@ -9,7 +9,7 @@
 
 **Real-time Dust Storm Monitoring System for Gulf Countries**
 
-Monitor sandstorms and dust events across Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, and Oman with live METAR data visualization.
+Monitor sandstorms and dust events with live METAR data visualization.
 
 [Features](#-features) • [Installation](#-installation) • [Deployment](#-deployment) • [API Documentation](#-api-documentation) • [Screenshots](#-screenshots)
 
