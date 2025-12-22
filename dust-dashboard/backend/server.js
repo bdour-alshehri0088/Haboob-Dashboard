@@ -6,10 +6,15 @@ const dustRoutes = require('./routes/dustRoutes');
 
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 
 dotenv.config();
 
 const app = express();
+
+// Performance Middleware
+app.use(compression());
+
 const PORT = process.env.PORT || 3000;
 
 // Security Middleware
