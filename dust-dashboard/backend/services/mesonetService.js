@@ -104,8 +104,8 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
             return chunks;
         };
 
-        // Split time into 10-day chunks to prevent timeouts on long queries
-        const timeChunks = splitDateRange(startDate, endDate, 10);
+        // Split time into 3-day chunks to prevent timeouts on long queries
+        const timeChunks = splitDateRange(startDate, endDate, 3);
 
         const fetchChunk = async (chunkNetworks, range, retries = 2) => {
             const networkParams = chunkNetworks.map(net => `network=${net}`).join('&');
@@ -133,7 +133,7 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
             for (let i = 0; i <= retries; i++) {
                 try {
                     console.log(`Fetching chunk: ${chunkNetworks[0]}... (Attempt ${i + 1}/${retries + 1})`);
-                    const response = await axios.get(requestUrl, { timeout: 45000 }); // 45s timeout
+                    const response = await axios.get(requestUrl, { timeout: 60000 }); // Increase to 60s timeout
                     const parsed = Papa.parse(response.data, {
                         header: true,
                         skipEmptyLines: true,
@@ -151,19 +151,14 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
             return [];
         };
 
-        // Execute ALL requests in parallel (Time Chunks * Network Chunks)
-        // e.g. 30 days (3 chunks) * 12 networks (3 chunks) = 9 requests
-        const promises = [];
-        timeChunks.forEach(range => {
-            networkChunks.forEach(nets => {
-                promises.push(fetchChunk(nets, range));
-            });
-        });
-
-        const results = await Promise.all(promises);
-
-        // Flatten results
-        const rawData = results.flat();
+        // Execute requests: Sequential Time Chunks, Parallel Network Chunks within each time chunk
+        const rawData = [];
+        for (const range of timeChunks) {
+            console.log(`Processing time range: ${range.start.toISOString()} to ${range.end.toISOString()}`);
+            const networkPromises = networkChunks.map(nets => fetchChunk(nets, range));
+            const results = await Promise.all(networkPromises);
+            rawData.push(...results.flat());
+        }
 
         console.log(`Total raw records fetched: ${rawData.length}`);
 
