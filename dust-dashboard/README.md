@@ -1,53 +1,21 @@
-# Dust Dashboard 🌪️
+# Haboob | Dust Observation Dashboard 🏜️
+**Sandstorm & Dust Monitoring System for the MENA Region**
 
-A comprehensive dashboard for visualizing dust-related meteorological data.
+By **Eng. Budour Alshehri**
 
-## Features
-- **Precise WxCodes Filtering**: Filters for DU, SA, BLSA, BLDU, SS, DS, PO.
-- **Interactive Map**: Leaflet-based map with heatmaps and station markers.
-- **Wind Rose Analysis**: Generates wind roses for individual stations.
-- **Detailed Summaries**: Matches specific reporting requirements.
-- **RTL Support**: Fully supports Arabic layout and text.
-- **Premium Design**: "Earthy" theme with responsive UI.
+---
 
-## WxCodes Explanation
-The application filters METAR data for the following weather codes:
-- **DU**: Dust (Widespread)
-- **SA**: Sand
-- **BLSA**: Blowing Sand
-- **BLDU**: Blowing Dust
-- **SS**: Sandstorm
-- **DS**: Duststorm
-- **PO**: Dust/Sand Whirls
+## 📖 Documentation
+Please refer to the [Root README](file:///Users/budouralshehri/Dust-Dash/README.md) for full documentation, installation steps, and technical architecture details.
 
-## Setup Instructions
+### Quick Start
+1. `cd backend && npm install`
+2. `npm run dev`
+3. Open `frontend/index.html`
 
-### Prerequisites
-- Node.js installed
-
-### Installation
-1. Clone the repository.
-2. Navigate to the backend directory:
-   ```bash
-   cd dust-dashboard/backend
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Running Locally
-1. Start the backend server:
-   ```bash
-   npm run dev
-   ```
-2. Open `dust-dashboard/frontend/index.html` in your browser (or use a simple static server like Live Server).
-
-## Deployment on Render
-1. Create a new Web Service on Render.
-2. Connect your repository.
-3. Set **Root Directory** to `dust-dashboard/backend`.
-4. Set **Build Command** to `npm install`.
-5. Set **Start Command** to `node server.js`.
-6. Ensure environment variables are set if needed.
-
+### Features
+- WMO Standard Weather Symbols
+- Parallel Data Fetching (High Performance)
+- Automated Dust Severity Classification
+- Interactive Heatmaps & Wind Roses
+- Optimized for Performance & Security
