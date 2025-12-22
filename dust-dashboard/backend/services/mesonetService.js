@@ -151,14 +151,15 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
             return [];
         };
 
-        // Execute requests: Sequential Time Chunks, Parallel Network Chunks within each time chunk
-        const rawData = [];
-        for (const range of timeChunks) {
-            console.log(`Processing time range: ${range.start.toISOString()} to ${range.end.toISOString()}`);
-            const networkPromises = networkChunks.map(nets => fetchChunk(nets, range));
-            const results = await Promise.all(networkPromises);
-            rawData.push(...results.flat());
-        }
+        // Fetch all networks in parallel for the full date range
+        // For ranges > 60 days, we could split time, but for 99% of user queries, 
+        // parallelizing by network for the full range is the most efficient.
+        console.log(`Executing parallel fetch for ${networks.length} networks`);
+
+        const fetchPromises = networks.map(net => fetchChunk([net], { start: startDate, end: endDate }));
+        const results = await Promise.all(fetchPromises);
+
+        const rawData = results.flat();
 
         console.log(`Total raw records fetched: ${rawData.length}`);
 
