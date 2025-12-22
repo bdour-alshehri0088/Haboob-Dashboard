@@ -1,113 +1,119 @@
-# Haboob | Dust Observation Dashboard 🌪️
-**Advanced Sandstorm & Dust Monitoring System for the MENA Region**
+# Haboob | Dust Observation Dashboard 🏜️
+**Professional-Grade Sandstorm & Dust Monitoring System for the MENA Region**
 
 <div align="center">
 
 ![Version](https://img.shields.io/badge/Version-1.2.0-blue)
 ![Meteorology](https://img.shields.io/badge/Standard-WMO-green)
 ![Stability](https://img.shields.io/badge/Performance-Optimized-orange)
+![Arabic](https://img.shields.io/badge/Support-Arabic%20RTL-red)
 
-**Professional real-time tracking of dust events across the Gulf and Middle East.**
+**Real-time METAR visualization and historical analysis for aviation and meteorological research.**
 
 </div>
 
 ---
 
 ## 📖 Overview
-The **Haboob Dashboard** is a state-of-the-art meteorological visualization tool designed to monitor, analyze, and report on dust and sandstorm activity. It integrates real-time METAR data from over 40 stations across the MENA region, providing users with actionable insights through interactive maps, WMO-compliant station models, and detailed historical reports.
+The **Haboob Dashboard** is a comprehensive meteorological platform designed to monitor and visualize dust-related weather events across the Middle East and North Africa. By leveraging real-time METAR data from the **Iowa Environmental Mesonet (IEM)**, the system provides high-fidelity visualizations of sandstorms, blowing dust, and dust whirls using international meteorological standards.
 
 ---
 
-## ✨ Core Features
+## ✨ Key Features & Scenarios
 
-### 🗺️ Interactive GIS Visualization
-- **WMO Station Models**: Dynamic SVG markers representing sky cover and wind intensity according to WMO protocols.
-- **Heatmap Layer**: Real-time concentration analysis highlighting dangerous dust zones.
-- **Station Deep-Dive**: Click any station to view its raw METAR, temperature, pressure, visibility, and wind rose.
-- **Auto-Refresh (Live Mode)**: Synchronized 5-minute update cycles to ensure real-time situational awareness.
+### 1. **Real-Time Monitoring (Live Mode)**
+- **Dynamic Heatmapping**: Identifies active dust concentrations using a weighted intensity algorithm.
+- **Auto-Refresh**: Synchronizes with data sources every 5 minutes to provide "Live" situational awareness.
+- **Connection Status**: Real-time indicator ("Connected" / "Loading") for data integrity.
 
-### 📈 Scalable Historical Reports
-- **Custom Date Ranges**: Fetch up to 60 days of data in a single request.
-- **Parallel Fetching Engine**: High-speed acquisition bypassing standard API bottlenecks.
-- **Regional Analysis**: Categorized data per country (Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, Oman).
-- **Export Capabilities**: Download historical data as CSV for external research.
+### 2. **WMO Standard Symbology**
+The dashboard generates precise SVG-based **Station Models** according to World Meteorological Organization protocols:
+- **Wind Barbs**: Directional shafts with barbs representing speed (Half-barb = 5kt, Full-barb = 10kt).
+- **Calm/Light Logic**: Precise thresholds for 0 kt (double circle) and 1-4 kt (shaft only).
+- **Sky Cover**: 9 distinct visual states for cloud shading (0/8 to 8/8 coverage).
 
-### 🛠️ Performance & Security
-- **Gzip Compression**: Optimized JSON and asset delivery for lower latency.
-- **Resource Hints**: Pre-connected CDNs and deferred script loading for high PageSpeed scores.
-- **API Hardening**: Rate limiting and security headers (Helmet.js) for production stability.
+### 3. **Interactive Reporting**
+- **Daily Detailed Reports**: Aggregated view of dust events per country.
+- **Historical Custom Ranges**: Ability to fetch and analyze data for up to 60 days in a single session.
+- **CSV Export**: Export filtered station data for external analysis in Excel or Python.
 
 ---
 
 ## 🏗️ Technical Architecture
 
-### **The Data Pipeline**
-The system uses a unique "Parallel Network Acquisition" strategy located in `backend/services/mesonetService.js`:
-1. **Request Orchestration**: Instead of one large request, the backend fires parallel requests for 12+ national networks (SA__ASOS, AE__ASOS, etc.).
-2. **Dust Classification**: Raw data is filtered through `dustFilter.js` using regex patterns for phenomena like `BLDU` (Blowing Dust), `DS` (Duststorm), and `PO` (Dust Whirls).
-3. **Coordinate Resiliency**: Hardcoded fallback logic for regional stations ensuring 100% map coverage even when station metadata is missing from the source.
+### **Backend: High-Performance Data Pipeline**
+- **Parallel Network Acquisition**: Uses a concurrent fetching strategy (`Promise.all`) to query 12 national networks (SA, AE, KW, QA, BH, OM, YE, JO, IQ, SY, LB, IR) simultaneously.
+- **Resilient Retry Mechanism**: Built-in exponential backoff for failed API requests to ensure stability during network fluctuations.
+- **Sequential Chunking**: For very large historical requests, the system automatically chunks data into manageable batches.
 
-### **WMO Symbol Engine**
-The `frontend/js/wmoSymbols.js` generates precise SVG models:
-- **Calm (< 1 kt)**: Green double circle, representing zero wind.
-- **Light (1-4 kt)**: Standard cloud circle + directional shaft (no barbs).
-- **Normal (≥ 5 kt)**: Standard shaft with barbs (Half-barb = 5kt, Full-barb = 10kt, Pennant = 50kt).
-- **Sky Cover**: 9 stages of center shading representing 0/8 (Clear) to 8/8 (Overcast).
+### **Data Processing Logic**
+- **Regex Filtering (`dustCodes.js`)**: Isolated dust events using strict patterns: `DU` (Dust), `SA` (Sand), `BLDU`/`BLSA` (Blowing Dust/Sand), `DS`/`SS` (Dust/Sandstorms), `PO` (Dust Whirls).
+- **Intensity Mapping**:
+  - **Level 1 (Severe)**: Visibility < 1.0 mile OR Code `DS`/`SS`.
+  - **Level 2 (Moderate)**: Visibility 1.0 - 3.0 miles OR Code `BLDU`/`BLSA`.
+  - **Level 3 (Light)**: Visibility > 3.0 miles OR Code `DU`/`SA`.
+- **Coordinate Patching**: Fallback geolocation for specific regional stations (e.g., OERS, OEMN, OEAR) that lack metadata in the source API.
 
----
-
-## 🎨 Classification & Severity
-
-| Severity | Weather Code | Visibility | Map Marker |
-| :--- | :--- | :--- | :--- |
-| **Severe** | DS, SS | < 1.0 mile | 🔴 Red |
-| **Moderate** | BLDU, BLSA, PO | 1.0 - 3.0 miles | 🟡 Yellow |
-| **Light** | DU, SA | > 3.0 miles | 🟢 Green |
+### **Frontend: Modern UI/UX**
+- **Glassmorphism Design**: A premium, "Earthy" aesthetic designed for professional environments.
+- **Layout**: Fully responsive and LTR/RTL compliant.
+- **Libraries**:
+  - `Leaflet.js`: Mapping and Heatmaps.
+  - `Plotly.js`: Meteorological Time-Series charts.
+  - `Chart.js`: Wind Rose diagrams.
 
 ---
 
-## 🚀 Installation & Usage
+## 🚀 Performance & Security Benchmarks
 
-### **1. Prerequisites**
-- Node.js (v18+)
-- npm
+### **Performance Optimizations**
+- **Gzip/Brotli Compression**: Enabled via backend middleware to reduce JSON payload size by up to 70%.
+- **Resource Hints**: `dns-prefetch` and `preconnect` for external assets (CDNs, Google Fonts).
+- **Asset Loading**: Selective `defer` attribute on application scripts to ensure non-blocking page renders.
 
-### **2. Setup**
-```bash
-git clone https://github.com/bdour-alshehri0088/Haboob-Dashboard.git
-cd dust-dashboard/backend
-npm install
-```
+### **Security Hardening**
+- **Helmet.js**: Implementation of secure HTTP headers.
+- **Rate Limiting**: Protection against API scraping and DoS attacks (100 requests / 15 min).
+- **Uniform Error Handling**: Centralized global error handling that masks internal stack traces from users.
 
-### **3. Running Locally**
-```bash
-npm run dev
-```
-Accessible at: `http://localhost:3000`
+---
 
-### **4. Deployment (Render)**
+## 🛠️ Installation & Deployment
+
+### **Installation**
+1. **Clone**: `git clone [repository-url]`
+2. **Backend**: 
+   ```bash
+   cd dust-dashboard/backend
+   npm install
+   npm run dev
+   ```
+3. **Frontend**: Open `frontend/index.html` (Accessible via local server at port 3000).
+
+### **Deployment (Render.com)**
 - **Root Directory**: `dust-dashboard/backend`
 - **Build Command**: `npm install`
 - **Start Command**: `node server.js`
+- **Environment**: Set `PORT` to default.
 
 ---
 
-## 📚 API Reference
-
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/dust` | GET | Current regional dust activity (24h). |
-| `/api/dust?hours=X` | GET | Activity for the last X hours. |
-| `/api/dust?start=DATE&end=DATE` | GET | Custom historical range. |
+## 🛰️ Regional Network Coverage
+The dashboard specifically monitors the following networks:
+- **SA__ASOS** (Saudi Arabia) | **AE__ASOS** (UAE) | **KW__ASOS** (Kuwait)
+- **QA__ASOS** (Qatar) | **BH__ASOS** (Bahrain) | **OM__ASOS** (Oman)
+- **YE__ASOS** (Yemen) | **JO__ASOS** (Jordan) | **IQ__ASOS** (Iraq)
+- **SY__ASOS** (Syria) | **LB__ASOS** (Lebanon) | **IR__ASOS** (Iran)
 
 ---
 
 ## 👩‍💻 Credits
-Developed and Maintained by **Eng. Budour Alshehri**.
-Academic Project for **EMAI651 - King Abdulaziz University**.
+Developed by **Eng. Budour Alshehri**.
+Academic Research Project - **King Abdulaziz University (EMAI651)**.
+Special thanks to the **Iowa Environmental Mesonet** for data access.
 
 ---
 
 ## 🛡️ License
 Licensed under the **ISC License**.
-© 2025 Haboob Dashboard Team.
+© 2025 Haboob Dashboard.
