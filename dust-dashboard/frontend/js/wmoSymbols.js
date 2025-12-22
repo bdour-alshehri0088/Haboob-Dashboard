@@ -48,15 +48,20 @@ const getVisColor = (visMiles) => {
  * Generate wind barb SVG
  */
 const getWindBarbSVG = (speed, isWhite = true) => {
-    let spd = Math.round(speed / 5) * 5;
     const strokeColor = isWhite ? "white" : "black";
     const fillColor = isWhite ? "white" : "black";
 
-    if (spd < 5) return ""; // Calm - will draw double circle separately
+    if (speed < 1) return ""; // Calm - no shaft
 
+    // 1-4 kt: Show shaft only (per user request)
+    // 5 kt+: Draw shaft + barbs
     let svg = `<line x1="0" y1="0" x2="0" y2="-45" stroke="${strokeColor}" stroke-width="2.5" />`;
+
+    if (speed < 5) return svg;
+
+    // Round to nearest 5kt unit for barbs
+    let tempSpd = Math.round(speed / 5) * 5;
     let y = -45;
-    let tempSpd = spd;
 
     // 50kt Pennants (Triangles)
     while (tempSpd >= 50) {
@@ -215,7 +220,7 @@ export const createStationIcon = (data) => {
     // Center circle logic
     let centerCircleSVG = '';
 
-    if (windSpeed < 5) {
+    if (windSpeed < 1) {
         // Calm: Double circle (green outer, black inner)
         centerCircleSVG = `
             <circle cx="60" cy="60" r="10" fill="none" stroke="#00c853" stroke-width="2" />
