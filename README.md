@@ -108,8 +108,7 @@ The dashboard specifically monitors the following networks:
 ---
 
 ## 👩‍💻 Credits
-Developed by **Eng. Budour Alshehri**.
-Academic Research Project - **King Abdulaziz University (EMAI651)**.
+Developed by **Eng. Budour Alshehri**. .
 Special thanks to the **Iowa Environmental Mesonet** for data access.
 
 ---
