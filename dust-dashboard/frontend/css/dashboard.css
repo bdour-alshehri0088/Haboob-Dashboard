@@ -297,6 +297,22 @@ td {
     align-items: center;
 }
 
+.no-wind-data {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px dashed var(--color-border);
+}
+
 /* Status Dot */
 .dot {
     display: inline-block;

@@ -24,6 +24,23 @@ export const updateWindRose = (data) => {
         type: "barpolar"
     }));
 
+    // CHECK FOR EMPTY DATA: If all radii are 0, don't plot
+    const totalCount = data.reduce((sum, bin) => sum + bin.r.reduce((s, val) => s + val, 0), 0);
+    const plotDiv = document.getElementById('windRosePlot');
+
+    if (!plotDiv) return;
+
+    // USE PLOTLY.PURGE: Recommended way to completely reset a Plotly container
+    Plotly.purge(plotDiv);
+
+    if (totalCount === 0) {
+        plotDiv.innerHTML = `<div class="no-wind-data">No available wind data</div>`;
+        return;
+    }
+
+    // Clear any previous "no data" message
+    plotDiv.innerHTML = '';
+
     const layout = {
         title: {
             text: 'Wind Speed Distribution',

@@ -29,7 +29,7 @@ const processMapData = (data) => {
  * Calculate intensity weight for heatmap based on visibility and code using simple logic.
  */
 const calculateIntensity = (code, vis) => {
-    let weight = 0.5;
+    let weight = 0.6; // Boosted base visibility
     const visibility = parseFloat(vis);
 
     // Lower visibility = higher intensity

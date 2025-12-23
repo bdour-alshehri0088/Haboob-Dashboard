@@ -42,6 +42,9 @@ const calculateWindRose = (data) => {
         const sknt = parseFloat(record.sknt);
 
         if (!isNaN(drct) && !isNaN(sknt)) {
+            // EXCLUDE CALM WINDS (0,0) from the rose calculation
+            if (sknt === 0 && drct === 0) return;
+
             // Determine direction index
             const dirIndex = Math.round(drct / 22.5) % 16;
 

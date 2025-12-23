@@ -576,12 +576,17 @@ function renderStationWindRose(containerId, observations) {
 
     // Initialize counts: bin -> direction array
     const binCounts = bins.map(() => directions.map(() => 0));
+    let totalValidWind = 0;
 
     observations.forEach(obs => {
         if (obs.windDir !== null && !isNaN(obs.windDir) && obs.windKt !== null) {
+            // EXCLUDE CALM WINDS (0,0)
+            if (obs.windKt === 0 && obs.windDir === 0) return;
+
             // Determine direction index (0-15)
             // 360/16 = 22.5 degrees per sector
             const dirIdx = Math.round(obs.windDir / 22.5) % 16;
+            totalValidWind++;
 
             // Determine speed bin
             const speed = obs.windKt;
@@ -598,6 +603,19 @@ function renderStationWindRose(containerId, observations) {
             binCounts[binIdx][dirIdx]++;
         }
     });
+
+    if (!container) return;
+
+    // USE PLOTLY.PURGE: Completely reset the Plotly container before new plot or message
+    Plotly.purge(container);
+
+    if (totalValidWind === 0) {
+        container.innerHTML = `<div class="no-wind-data">No available wind data</div>`;
+        return;
+    }
+
+    // Clear any previous "no data" message
+    container.innerHTML = '';
 
     // Create Plotly Traces
     const plotData = bins.map((bin, i) => ({

@@ -29,7 +29,9 @@ export class TimeController {
         // Get unique times and sort
         const uniqueTimes = Array.from(new Set(timeMap.values()));
         this.sortedTimes = uniqueTimes.sort();
-        this.currentIndex = 0; // Start at oldest instead of latest
+
+        // Start at the latest time instead of oldest
+        this.currentIndex = Math.max(0, this.sortedTimes.length - 1);
 
         this.renderControls();
         this.updateDisplay();

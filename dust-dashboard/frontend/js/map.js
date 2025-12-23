@@ -38,9 +38,8 @@ export class DustMap {
         const heatPoints = [];
         const isWmo = this.options.isWmoMode;
 
-        mapData.forEach(point => {
-            if (isWmo) {
-                // WMO Style Marker with Professional Styling
+        if (isWmo) {
+            mapData.forEach(point => {
                 const iconHtml = createStationIcon(point);
                 const icon = L.divIcon({
                     html: iconHtml,
@@ -50,38 +49,54 @@ export class DustMap {
                 });
 
                 const marker = L.marker([point.lat, point.lon], { icon: icon });
-
-                // Add professional METAR popup
                 const popupContent = createMetarPopup(point);
                 marker.bindPopup(popupContent, {
                     maxWidth: 350,
                     className: 'metar-popup'
                 });
-
                 markers.push(marker);
+            });
+        } else {
+            // Group by station for the summary map to avoid overlapping markers
+            const stationMap = new Map();
 
-            } else {
-                // Standard Circle Marker
+            mapData.forEach(point => {
+                const key = point.station;
+                if (!stationMap.has(key)) {
+                    stationMap.set(key, point);
+                } else {
+                    // Keep the "worst" condition for the marker
+                    const existing = stationMap.get(key);
+                    const currentSev = this._getSeverity(point.wxcodes);
+                    const existingSev = this._getSeverity(existing.wxcodes);
+                    if (currentSev > existingSev) {
+                        stationMap.set(key, point);
+                    }
+                }
+
+                // Still add ALL points to heatmap
+                heatPoints.push([point.lat, point.lon, point.intensity]);
+            });
+
+            stationMap.forEach(point => {
                 const marker = L.circleMarker([point.lat, point.lon], {
-                    radius: 6,
+                    radius: 8,
                     fillColor: this._getColor(point.wxcodes),
                     color: "#fff",
-                    weight: 1,
+                    weight: 2,
                     opacity: 1,
-                    fillOpacity: 0.8
+                    fillOpacity: 0.9
                 });
 
                 marker.bindPopup(`
                     <strong>${point.station}</strong><br>
-                    Phenomena: ${point.wxcodes}<br>
-                    Vis: ${point.vsby} miles<br>
-                    Wind: ${point.sknt} kts (${point.drct}°)
+                    Region Reports: ${mapData.filter(p => p.station === point.station).length}<br>
+                    Worst Case: ${point.wxcodes}<br>
+                    Avg Vis: ${point.vsby} miles
                 `);
                 markers.push(marker);
-
-                heatPoints.push([point.lat, point.lon, point.intensity]);
-            }
-        });
+            });
+        }
 
         // Add Markers Layer
         this.layer = L.layerGroup(markers).addTo(this.map);
@@ -98,10 +113,17 @@ export class DustMap {
     }
 
     _getColor(code) {
-        if (!code) return '#FFD700';
-        if (code.includes('DS') || code.includes('SS')) return '#FF4500';
-        if (code.includes('BLDU') || code.includes('BLSA')) return '#FFA500';
-        return '#FFD700';
+        const severity = this._getSeverity(code);
+        if (severity === 3) return '#FF4500'; // Red
+        if (severity === 2) return '#FFA500'; // Orange
+        return '#FFD700'; // Yellow
+    }
+
+    _getSeverity(code) {
+        if (!code) return 1;
+        if (code.includes('DS') || code.includes('SS')) return 3; // Severe
+        if (code.includes('BLDU') || code.includes('BLSA')) return 2; // Moderate
+        return 1; // Light
     }
 }
 

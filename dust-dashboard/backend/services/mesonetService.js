@@ -42,9 +42,16 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
 
         // Patch missing coordinates for specific stations
         const MANUAL_COORDS = {
-            'OERS': { lat: 25.6283, lon: 37.0889 },
-            'OEMN': { lat: 21.4133, lon: 39.8933 },
-            'OEAR': { lat: 21.3547, lon: 39.9839 }
+            'OERS': { lat: 29.62, lon: 43.48 }, // Rafha (Fixed)
+            'OEMN': { lat: 21.4133, lon: 39.8933 }, // Mina
+            'OEAR': { lat: 21.3547, lon: 39.9839 }, // Arafat
+            'OEWJ': { lat: 26.23, lon: 36.47 }, // Al Wajh
+            'OEJN': { lat: 21.67, lon: 39.15 }, // Jeddah
+            'OEDF': { lat: 26.47, lon: 49.80 }, // Dammam
+            'OERK': { lat: 24.95, lon: 46.70 }, // Riyadh
+            'OEPK': { lat: 28.33, lon: 46.13 }, // Al Qaisumah
+            'OEMA': { lat: 24.55, lon: 39.71 }, // Madinah
+            'OEGN': { lat: 16.90, lon: 42.58 }  // Gizan
         };
 
         const fetchChunkAndFilter = async (chunkNetworks, range, retries = 2) => {
@@ -82,7 +89,8 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
                     // EARLY FILTERING: Process and filter immediately to save memory
                     const processed = parsed.data
                         .map(row => {
-                            if ((!row.lat || !row.lon) && MANUAL_COORDS[row.station]) {
+                            // PRIORITIZE MANUAL OVERRIDES: Ensure critical stations are correctly placed
+                            if (MANUAL_COORDS[row.station]) {
                                 row.lat = MANUAL_COORDS[row.station].lat;
                                 row.lon = MANUAL_COORDS[row.station].lon;
                             }
