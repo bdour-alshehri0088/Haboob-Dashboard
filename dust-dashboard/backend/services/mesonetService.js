@@ -42,7 +42,8 @@ const getDustData = async (hours = 24, customStart = null, customEnd = null) => 
 
         // Patch missing coordinates for specific stations
         const MANUAL_COORDS = {
-            'OERS': { lat: 29.62, lon: 43.48 }, // Rafha (Fixed)
+            'OERF': { lat: 29.62, lon: 43.48 }, // Rafha (Fixed)
+            'OERS': { lat: 25.63028, lon: 37.07833 }, // Red Sea (Fixed)
             'OEMN': { lat: 21.4133, lon: 39.8933 }, // Mina
             'OEAR': { lat: 21.3547, lon: 39.9839 }, // Arafat
             'OEWJ': { lat: 26.23, lon: 36.47 }, // Al Wajh
