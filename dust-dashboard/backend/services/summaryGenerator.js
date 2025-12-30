@@ -16,9 +16,10 @@ const generateSummary = (data) => {
         // Wxcodes can be combined e.g. "BLSA DU", so we should split or check presence
         const codes = record.wxcodes ? record.wxcodes.split(' ') : [];
         codes.forEach(code => {
-            // We only care about our target codes
-            if (['DU', 'SA', 'BLSA', 'BLDU', 'SS', 'DS', 'PO'].includes(code)) {
-                summary.byType[code] = (summary.byType[code] || 0) + 1;
+            // Remove + or - prefixes for better matching in statistics
+            const cleanCode = code.replace(/^[+-]/, '');
+            if (['DU', 'SA', 'BLSA', 'BLDU', 'SS', 'DS', 'PO'].includes(cleanCode)) {
+                summary.byType[cleanCode] = (summary.byType[cleanCode] || 0) + 1;
             }
         });
 

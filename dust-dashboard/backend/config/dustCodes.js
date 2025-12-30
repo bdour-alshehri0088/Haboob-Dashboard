@@ -9,6 +9,7 @@ module.exports = {
     'DS',    // Duststorm
     'PO'     // Dust/Sand Whirls
   ],
-  // Regex pattern for matching
-  REGEX_PATTERN: /(^|\s)(DU|SA|BLSA|BLDU|SS|DS|PO)(\s|$)/
+  // Regex pattern for matching: Supports optional + (heavy) or - (light) prefixes
+  // Updated for case-insensitivity and more robust matching
+  REGEX_PATTERN: /(^|\s)([+\-])?(DU|SA|BLSA|BLDU|SS|DS|PO)(\s|$)/i
 };
