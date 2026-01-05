@@ -1,4 +1,4 @@
-# Haboob | Dust Observation Dashboard 🏜️
+# Dust Observation Dashboard 🏜️
 **Professional-Grade Sandstorm & Dust Monitoring System for the MENA Region**
 
 <div align="center">
@@ -15,7 +15,7 @@
 ---
 
 ## 📖 Overview
-The **Haboob Dashboard** is a comprehensive meteorological platform designed to monitor and visualize dust-related weather events across the Middle East and North Africa. By leveraging real-time METAR data from the **Iowa Environmental Mesonet (IEM)**, the system provides high-fidelity visualizations of sandstorms, blowing dust, and dust whirls using international meteorological standards.
+The **Dust Observation Dashboard** is a comprehensive meteorological platform designed to monitor and visualize dust-related weather events across the Middle East and North Africa. By leveraging real-time METAR data from the **Iowa Environmental Mesonet (IEM)**, the system provides high-fidelity visualizations of sandstorms, blowing dust, and dust whirls using international meteorological standards.
 
 ---
 
@@ -115,4 +115,4 @@ Special thanks to the **Iowa Environmental Mesonet** for data access.
 
 ## 🛡️ License
 Licensed under the **ISC License**.
-© 2025 Haboob Dashboard.
+© 2025 Dust Observation Dashboard.

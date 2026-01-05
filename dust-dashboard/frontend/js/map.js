@@ -62,15 +62,36 @@ export class DustMap {
 
             mapData.forEach(point => {
                 const key = point.station;
+                const currentVis = parseFloat(point.vsby);
+
                 if (!stationMap.has(key)) {
-                    stationMap.set(key, point);
+                    // Initialize with minVis and an array for all observations
+                    stationMap.set(key, {
+                        ...point,
+                        minVis: isNaN(currentVis) ? Infinity : currentVis,
+                        allObservations: [point]
+                    });
                 } else {
-                    // Keep the "worst" condition for the marker
                     const existing = stationMap.get(key);
+
+                    // Add to observations list
+                    existing.allObservations.push(point);
+
+                    // Update minVis across all observations for this station
+                    if (!isNaN(currentVis) && currentVis < existing.minVis) {
+                        existing.minVis = currentVis;
+                    }
+
+                    // Keep the "worst" condition record for the main marker properties (color/icon)
                     const currentSev = this._getSeverity(point.wxcodes);
                     const existingSev = this._getSeverity(existing.wxcodes);
-                    if (currentSev > existingSev) {
-                        stationMap.set(key, point);
+
+                    if (currentSev > existingSev || (currentSev === existingSev && currentVis < parseFloat(existing.vsby))) {
+                        const savedMinVis = existing.minVis;
+                        const savedObs = existing.allObservations;
+                        Object.assign(existing, point);
+                        existing.minVis = savedMinVis;
+                        existing.allObservations = savedObs;
                     }
                 }
 
@@ -88,12 +109,44 @@ export class DustMap {
                     fillOpacity: 0.9
                 });
 
+                // Generate scrollable list of all METARs for this station
+                // Sort by time descending (latest first)
+                const sortedObs = point.allObservations.sort((a, b) => new Date(b.valid) - new Date(a.valid));
+                const metarListHtml = sortedObs.map(obs => `
+                    <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee; last-child { border-bottom: none; }">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #666; margin-bottom: 2px;">
+                            <span>${new Date(obs.valid).toUTCString().replace('GMT', 'UTC')}</span>
+                            <span style="font-weight: bold; color: ${this._getSeverity(obs.wxcodes) === 3 ? '#e63946' : '#666'}">${obs.wxcodes || '-'}</span>
+                        </div>
+                        <code style="display: block; font-size: 11px; color: #1e3a5f; word-break: break-all;">${obs.metar}</code>
+                    </div>
+                `).join('');
+
+                const minVisRawMeters = point.minVis === Infinity ? 'N/A' : point.minVis * 1609.34;
+                // Round to nearest 100m for cleaner reporting
+                const minVisMeters = minVisRawMeters === 'N/A' ? 'N/A' : Math.round(minVisRawMeters / 100) * 100;
+
                 marker.bindPopup(`
-                    <strong>${point.station}</strong><br>
-                    Region Reports: ${mapData.filter(p => p.station === point.station).length}<br>
-                    Worst Case: ${point.wxcodes}<br>
-                    Avg Vis: ${point.vsby} miles
-                `);
+                    <div style="font-family: 'Tajawal', sans-serif; min-width: 280px;">
+                        <div style="background: #1e3a5f; color: white; padding: 10px 15px; margin: -14px -20px 10px -20px; font-weight: bold; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Station: ${point.station}</span>
+                            <span style="font-size: 11px; opacity: 0.9;">${point.allObservations.length} Obs</span>
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.6;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span><strong>Reports:</strong> ${point.allObservations.length}</span>
+                                <span><strong>Min Vis:</strong> <span style="color: #e63946; font-weight: bold;">${point.minVis === Infinity ? 'N/A' : point.minVis.toFixed(2)} mi (${minVisMeters}m)</span></span>
+                            </div>
+                            
+                            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+                            
+                            <strong style="font-size: 12px; color: #1e3a5f; display: block; margin-bottom: 8px;">METAR Records:</strong>
+                            <div style="max-height: 180px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
+                                ${metarListHtml}
+                            </div>
+                        </div>
+                    </div>
+                `, { maxWidth: 350 });
                 markers.push(marker);
             });
         }

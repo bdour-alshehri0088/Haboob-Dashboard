@@ -1,7 +1,7 @@
 {
-  "name": "haboob-dashboard",
+  "name": "dust-observation-dashboard",
   "version": "1.0.0",
-  "description": "Haboob Dust Observation Dashboard - Full Stack Application",
+  "description": "Dust Observation Dashboard - Full Stack Application",
   "main": "dust-dashboard/backend/server.js",
   "scripts": {
     "postinstall": "cd dust-dashboard/backend && npm install",
@@ -13,8 +13,7 @@
     "dust",
     "dashboard",
     "weather",
-    "metar",
-    "haboob"
+    "metar"
   ],
   "author": "",
   "license": "ISC",

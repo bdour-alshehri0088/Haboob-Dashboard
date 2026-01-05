@@ -1,4 +1,4 @@
-# Haboob | Dust Observation Dashboard 🏜️
+# Dust Observation Dashboard 🏜️
 **Sandstorm & Dust Monitoring System for the MENA Region**
 
 By **Eng. Budour Alshehri**

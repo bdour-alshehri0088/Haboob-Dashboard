@@ -305,8 +305,8 @@ export const createMetarPopup = (data) => {
             </div>
             <div style="padding: 5px;">
                 <strong>Time:</strong> ${time} UTC<br>
-                <strong>Temp:</strong> ${tempC}°C | <strong>Wind:</strong> ${windDir}° @ ${windSpeed} kt<br>
-                <strong>Visibility:</strong> ${visMiles} mi | <strong>Weather Code:</strong> ${wxCode}<br>
+                <strong>Temp:</strong> ${tempC}°C - <strong>Wind:</strong> ${windDir}° @ ${windSpeed} kt<br>
+                <strong>Visibility:</strong> ${visMiles} mi - <strong>Weather Code:</strong> ${wxCode}<br>
                 <hr style="margin: 8px 0; border: 0; border-top: 1px solid #ccc;">
                 <strong>Raw METAR:</strong><br>
                 <span style="color: #1565c0; font-weight: bold; word-break: break-all;">${metar}</span>
